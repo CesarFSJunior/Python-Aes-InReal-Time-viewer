@@ -6,7 +6,7 @@ from aes import Encrypt, Decrypt
 
 # arquivo.close()
 
-plaintext = "Texto a ser Criptografado"
+plaintext = "Texto a ser Criptografad"
 
 key = "0123456789abcdef0123456789abcdef"
 

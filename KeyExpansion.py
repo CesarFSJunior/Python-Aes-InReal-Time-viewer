@@ -1,9 +1,18 @@
 from matrizes import Sbox, Rc
 
 def keyExpansion(Outkey, Nr):
+
+    if len(Outkey) > 32:
+        return False
+
+    def keyToHex(plaintext):
+        output = ""
+        for i in plaintext:
+            output += hex(ord(i)).split('x')[1]
+        return output
     
-    key = []
-    key.extend(Outkey)
+    key = keyToHex(Outkey)
+    # key = Outkey
 
     def RotWord(i):
         lastDigitTemp = i[0]
@@ -26,8 +35,8 @@ def keyExpansion(Outkey, Nr):
 
     w = [[],[],[],[]]
 
-    if len(key) > 16:
-        if len(key) - 16 > 8:
+    if len(key) > 32:
+        if len(key) - 32 > 16:
             l = 2
         else:
             l = 1
@@ -36,10 +45,7 @@ def keyExpansion(Outkey, Nr):
 
     for i in range(len(w)):
         for l in range(4):
-            if (4*i)+l > len(key)-1:
-                w[i].append('00')
-            else:
-                w[i].append(format(ord(key[4*i+l]), 'x'))
+            w[i].append(key[((i * 4) + l) * 2 : (((i * 4) + l) * 2) + 2])
 
     # Nr = 14
     

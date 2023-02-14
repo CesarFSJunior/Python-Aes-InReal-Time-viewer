@@ -83,120 +83,43 @@ def ShifRows(seeProcess, matriz, direction):
     return matriz
 
 def MixColumns(seeProcess, matriz, Mix = Mix):
-    matrizTemp = [[],[],[],[]]
+    for i in range(4):
+        NewColumn = []
+        for j in range(4):
+            FieldProduct = 0
+            for k in range(4): 
+                value1 = matriz[k][i]
+                value2 = Mix[j][k]
+                GFMultResult = GfMul(value1, value2)
+                FieldProduct ^= GFMultResult
 
-    for mainI in range(4):
-        for mainL in range(4):
-            outmatrizLine = 0
-            for j in range(4):
-                inp = matriz[j][mainI]
-                m = Mix[mainL][j]
-                
-                if not inp == '00' and not m == "00":
+            NewColumn.append(FieldProduct)
 
-                    mod = [1,0,0,0,1,1,0,1,1]
+        for j in range(len(NewColumn)):
+            value = hex(NewColumn[j]).split('x')[1]
+            if len(value) == 1:
+                matriz[j][i] = '0' + value
+            else:
+                matriz[j][i] = hex(NewColumn[j]).split('x')[1]
 
-                    inp = bin(int(inp, 16)).split('b')[1]
-
-                    m = bin(int(m, 16)).split('b')[1]
-
-                    counter = len(inp)
-                    out = []
-                    for i in range(len(inp)):
-                        counter -= 1
-                        if inp[counter] == "1":
-                            if not counter == len(inp)-1:
-                                out.append(i)
-                            else:
-                                out.append(0)
-
-                    out.reverse()
-
-                    counter = len(m)
-                    outm = []
-                    for i in range(len(m)):
-                        counter -= 1
-                        if m[counter] == "1":
-                            if not counter == len(m)-1:
-                                outm.append(i)
-                            else:
-                                outm.append(0)
-
-                    outm.reverse()
-                    m = outm
-
-                    newM = []
-                    for i in out:
-                        for l in m:
-                            res = 0
-                            res = res+i+l
-                            newM.append(res)
-
-                    toRemove = []
-                    for i in range(len(newM)):
-                        if newM[i] > 7:
-                            toRemove.append(newM[i])     
-                            for l in [4,3,1,0]:
-                                newM.append(l + (newM[i] - 8))
-
-                    for i in toRemove:
-                        newM.remove(i)
-
-                    counter = 0
-                    for i in range(len(newM)):
-                        counter2 = 0
-                        for l in range(len(newM)):
-                            if not counter == counter2:
-                                if newM[i] == newM[l]:
-                                    newM[i] = ""
-                                    newM[l] = ""
-
-                            counter2 += 1
-                        counter += 1
-
-                    m = []
-                    for i in newM:
-                        if not i == '':
-                            m.append(i)
-
-                    output = []
-                    for i in range(max(m)+1):
-                        output.insert(0, 0)
-
-                    for i in range(len(m)):
-                        output[m[i]] = 1
-
-                    output.reverse()
-
-                    while len(output) >= len(mod):
-                        for i in range(len(mod)):
-                            if mod[i] == 1 and output[i] == 1:
-                                output[i] = 0
-                            elif mod[i] == 0 and output[i] == 0:
-                                output[i] = 0
-                            else:
-                                output[i] = 1
-                        output.remove(0)
-
-                    saida = '0b'
-                    for i in output:
-                        saida = saida + str(i)
-                    
-                    outmatrizLine = outmatrizLine ^ int(saida, 2)
-            outmatrizLineHex = hex(outmatrizLine).split('x')[1]
-            if len(outmatrizLineHex) == 1:
-                outmatrizLineHex = "0" + outmatrizLineHex
-
-            matrizTemp[mainL].append(outmatrizLineHex)
-            
-    matriz = matrizTemp
-
-    show(seeProcess, "Mix Columns")
-    show(seeProcess)
-    for i in matriz:
-        show(seeProcess, i)
-    skip(seeProcess)
     return matriz
+
+def GfMul( value1, value2):
+    value1 = int(value1, 16)
+    value2 = int(value2, 16)
+    multiplicationProduct = 0
+    irreduciblePolynomial = 0x11b
+
+    while not value1 == 0 and not value2 == 0:
+        if value2 & 1:
+            multiplicationProduct ^= value1
+
+        if value1 & 0x80:
+            value1 = (value1 << 1) ^ irreduciblePolynomial
+        else:
+            value1 <<= 1
+        value2 >>= 1
+    return multiplicationProduct
 
 def XorInitVector(seeProcess, matriz, iv):
     for i in range(4):
